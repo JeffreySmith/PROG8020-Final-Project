@@ -1,0 +1,25 @@
+{
+  "name": "prog8020-project",
+  "version": "1.0.0",
+  "description": "Project for PROG8020",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JeffreySmith/PROG8020-Project.git"
+  },
+  "author": "Jeffrey Smith",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/JeffreySmith/PROG8020-Project/issues"
+  },
+  "homepage": "https://github.com/JeffreySmith/PROG8020-Project#readme",
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "mongoose": "^7.4.1"
+  }
+}
