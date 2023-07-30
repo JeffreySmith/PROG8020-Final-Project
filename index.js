@@ -8,7 +8,6 @@ const port = 8080;
 const session = require("express-session");
 myApp.use(session({
     secret :"66b40822-73c6-50c4-a5d7-8fd3aa19152a",
-    //secret : "123456",
     resave:false,
     saveUninitialized : true
 }));
@@ -34,39 +33,30 @@ myApp.use(express.urlencoded({ extended: true }));
 myApp.set("views",path.join(__dirname, "views"));
 myApp.use(express.static(__dirname + "/public"));
 
-const pages = ["test"];
-let savedHTML = "";
-let title = "";
+const pages = [];
 
-myApp.get("/:name/",(req,res)=>{
-    let name = req.params.name;
-    let content = "";
-    let newTitle = "";
-    console.log("I'm running this for: "+"/"+name);
-    if(typeof(savedHTML) !='undefined' && savedHTML!=""){
-         content = savedHTML;
-    }
-    else{
-        content=testInfo;
-    }
-    if (title==""){
-        newTitle="Test title";
-    }
-    else{
-        newTitle = title;
-    }
-    if(pages.indexOf(name)>-1){
-        let html = test.createHTMLPage(name,newTitle,content);    
-        res.send(html);
-    }
-    else{
-        res.send("error");
-    }
-    
-})
+
 myApp.get("/edit",(req,res)=>{
     res.render('edit');
 });
+myApp.get("/:name/",(req,res)=>{
+    let name = req.params.name;
+
+    let filter = pages.filter(x=> x.route == name);
+    if(filter.length === 1){
+        console.log("I'm running this for: "+"/"+name);
+
+        //let html = test.createHTMLPage(name,newTitle,content);    
+        let html = test.createHTMLPage(filter[0].name,filter[0].name,filter[0].content);
+        res.send(html);
+    }
+    else{
+        console.log(req.url)   
+        res.redirect('/edit');
+    }
+    
+})
+
 
 myApp.get("/pages/:pageName/",(req,res)=>{
     let {type} = req.params;
@@ -75,12 +65,31 @@ myApp.get("/pages/:pageName/",(req,res)=>{
 });
 
 
-myApp.post("/edit",[check("htmlcontent").notEmpty()],(req,res)=>{
+myApp.post("/edit",[check("htmlcontent").notEmpty(),check("pagename").notEmpty()],(req,res)=>{
 
     let html=req.body.htmlcontent;
-    title = req.body.articleTitle;
-    savedHTML = html;
-    pages.push(title);
+    let title = req.body.articleTitle;
+    let pageName = req.body.pagename;
+    console.log(pageName)
+    pageName = pageName.replace(' ','');
+    //console.log(pageName);
+    let filter = pages.filter(x=>x.route === pageName);
+    console.log(`Filter length: ${filter.length}`);
+    if(filter.length===0){
+        let page = {
+            name:title,
+            route:pageName,
+            content:html
+        };
+        pages.push(page);
+    }
+    else{
+        console.log(filter[0].route)
+        filter[0].name=title;
+        filter[0].content=html;
+        //filter[0].route=pageName;
+    }   
+    
     console.log(pages);
     res.render("edit");
 });

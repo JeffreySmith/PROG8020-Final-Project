@@ -10,14 +10,16 @@
 </head>
 <body>
     <form action="/edit" method="post" name="edit-form" >
+        <label for="pagename">Page Name:</label>
+        <input type="text" id="pagename" name="pagename">
         <label for="title">Article Title:</label>
-        <input type="text" id=articleTitle" name="articleTitle">
+        <input type="text" id="articleTitle" name="articleTitle">
         <textarea id="htmlcontent" name="htmlcontent"></textarea>
         <input type="submit" value="Save">
     </form>
     
     <footer>
-        <p>info here</p>
+        <p>&copy; Copyright 2023. Jeffrey Smith</p>
     </footer>
     <script>
         tinymce.init({selector: 'textarea', 
