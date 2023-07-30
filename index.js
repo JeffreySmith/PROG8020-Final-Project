@@ -71,8 +71,8 @@ myApp.post("/edit",[check("htmlcontent").notEmpty(),check("pagename").notEmpty()
     let title = req.body.articleTitle;
     let pageName = req.body.pagename;
     console.log(pageName)
-    pageName = pageName.replace(' ','');
-    //console.log(pageName);
+    pageName = pageName.replaceAll(' ','-');
+    
     let filter = pages.filter(x=>x.route === pageName);
     console.log(`Filter length: ${filter.length}`);
     if(filter.length===0){
