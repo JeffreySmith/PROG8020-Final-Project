@@ -10,11 +10,13 @@ function createHTMLPage(title,articleTitle,innerHTMLContent){
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/styles.css">
     </head>
-    <header>
-    </header>
-    <nav>
-    </nav>
+    
     <body>
+        <header>
+        </header>
+        <nav>
+        </nav>
+        <img class="hero-image" src="imagePath" alt="Hero image here">
         <h1>${articleTitle}</h1>
         <main>
             ${innerHTMLContent}
