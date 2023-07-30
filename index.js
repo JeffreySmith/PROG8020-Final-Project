@@ -1,4 +1,5 @@
 "use strict";
+const test = require('./htmlTemplate.js');
 const express = require("express");
 const myApp = new express();
 const path = require("path");
@@ -14,6 +15,17 @@ myApp.use(session({
 
 const { check, validationResult } = require('express-validator');
 
+let template = `<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Simple CMS</title>
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/styles.css">
+    </head>
+<body>`;
+
 myApp.set("view engine", "ejs");
 myApp.use(express.urlencoded({ extended: true }));
 myApp.set("views",path.join(__dirname, "views"));
@@ -24,16 +36,28 @@ myApp.get('/users/:userId/books/:bookId', (req, res) => {
     console.log(req.params);
     res.send(req.params);
   });
-
+myApp.get("/test",(req,res)=>{
+    let html = test.createHTMLPage("Test","This is my article","<p>I put this here</p>");
+    console.log(test);
+    res.send(html);
+});
 myApp.get("/pages/:pageName/",(req,res)=>{
     let {type} = req.params;
     console.log(req.params);
     res.send(req.params);
 });
 myApp.get("/:pageName/",(req,res)=>{
-    let {type} = req.params;
+    let {pageName} = req.params;
+
+    if (pageName == "about"){
+        res.send(template+"<h1>This is my about page"+"</body></html>");
+    }
+    else{
+        res.send(req.params);
+    }
+    console.log(pageName);
     console.log(req.params);
-    res.send(req.params);
+    
 });
 pages.forEach((name)=>{
     myApp.get("/"+name,(req,res)=>{
