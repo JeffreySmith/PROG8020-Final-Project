@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    
+    <table>
+        <thead>
+            <th>Page</th>
+            <th>Manage</th>
+            <th>Manage</th>
+        </thead>
+        <tbody>
+            <% if(typeof(pages)!='undefined'){%>
+                <% for(let page of pages){%>
+                    <tr>
+                        <td><%=page.name%></td>
+                        <td><a href="/edit/<%=page.route%>">Update</a></td>
+                        <td><a href="/delete/<%=page.route%>">Delete</a></td>
+                    </tr>
+                <%}%>
+            <%}%>
+        </tbody>
+        </table>
+</body>
+</html>

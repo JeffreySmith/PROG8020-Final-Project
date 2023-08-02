@@ -23,12 +23,34 @@ myApp.set("views",path.join(__dirname, "views"));
 myApp.use(express.static(__dirname + "/public"));
 myApp.use(upload());
 const pages = [];
-const reservedNames = ["edit","login","logout","dashboard"];
+const reservedNames = ["edit","login","logout","dashboard","add"];
 myApp.get("/",(req,res)=>{
    res.redirect('/home');
 });
-myApp.get("/edit",(req,res)=>{
-    res.render('edit');
+myApp.get("/add",(req,res)=>{
+    res.render('add');
+});
+myApp.get("/dashboard",(req,res)=>{
+    res.render("dashboard",{pages});
+});
+myApp.get("/edit/:name/",(req,res)=>{
+    let name = req.params.name;
+    console.log(`/edit/${name}`);
+    //pages.forEach(x=>console.log(x));
+    let filter = pages.filter(x=>x.route.toLowerCase() == name.toLowerCase());
+    console.log(`There are ${filter.length} elements in the filter for ${name}`);
+    if(filter.length===1){
+        let values = {
+            html:filter[0].content,
+            title:filter[0].name,
+            pageName:filter[0].route
+        };
+        console.log(values);
+        res.render('add',{values});
+    }
+    else{
+        res.redirect('/add');
+    }
 });
 myApp.get("/:name/",(req,res)=>{
     let name = req.params.name;
@@ -42,11 +64,11 @@ myApp.get("/:name/",(req,res)=>{
     }
     else{
         console.log(req.url)   
-        res.redirect('/edit');
+        res.redirect('/add');
     }
 });
 
-myApp.post("/edit",[check("pagename").notEmpty()],(req,res)=>{
+myApp.post("/add",[check("pagename").notEmpty()],(req,res)=>{
     const expressErrors = validationResult(req);
     let html=req.body.htmlcontent;
     let title = req.body.articleTitle;
@@ -59,6 +81,11 @@ myApp.post("/edit",[check("pagename").notEmpty()],(req,res)=>{
         }
         errors.push("You must supply a page name");
     }
+    //Eventually don't let it put this value in on error. It should not insert an invalid page route
+    if(pageName.includes('/')){
+        errors.push("Please only put letters or digits in the page title")
+    }
+
     if(req.files){
         console.log(req.files);
         let image = req.files.Image;
@@ -132,10 +159,10 @@ myApp.post("/edit",[check("pagename").notEmpty()],(req,res)=>{
             title:title,
             pageName:pageName
         };
-        res.render("edit",{errors,values});
+        res.render("add",{errors,values});
     }
     else{
-        res.render("edit",{values});
+        res.render("add",{values});
     }
     
 });

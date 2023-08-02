@@ -64,6 +64,7 @@ h1{
 .error-text{
     font-weight:600;
 }
+
 input[type="submit"]{
     padding:5px 20px;
 }
