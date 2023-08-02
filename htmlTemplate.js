@@ -7,24 +7,28 @@ function createHTMLPage(title,articleTitle,innerHTMLContent){
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${title}</title>
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/styles.css">
+        <link rel="stylesheet" type="text/css" href="/css/normalize.css">
+        <link rel="stylesheet" type="text/css" href="/css/styles.css">
     </head>
     
     <body>
+        
         <header>
         </header>
         <nav>
         </nav>
-        <img class="hero-image" src="imagePath" alt="Hero image here">
-        <h1>${articleTitle}</h1>
-        <main>
-            ${innerHTMLContent}
-        </main>
+        <div class="container">
+            <img class="hero-image" src="imagePath" alt="Hero image here">
+            <h1>${articleTitle}</h1>
+            <main>
+                ${innerHTMLContent}
+            </main>
+        </div>
+        <footer>
+            <p>&copy; Copyright 2023. Jeffrey Smith</p>
+        </footer>
     </body>
-    <footer>
-        <p>&copy; Copyright 2023. Jeffrey Smith</p>
-    </footer>
+    
     </html>`;
 }
 module.exports = {createHTMLPage};

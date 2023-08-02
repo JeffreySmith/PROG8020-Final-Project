@@ -9,22 +9,28 @@
     <script src="https://cdn.tiny.cloud/1/pjhv6b272ctrjq90csxbmsy1fxqv4trr1w459senwahhyoyr/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 </head>
 <body>
-    <form action="/edit" method="post" name="edit-form" >
-        <label for="pagename">Page Name:</label>
-        <input type="text" id="pagename" name="pagename">
-        <label for="title">Article Title:</label>
-        <input type="text" id="articleTitle" name="articleTitle">
-        <textarea id="htmlcontent" name="htmlcontent"></textarea>
-        <input type="submit" value="Save">
-    </form>
-    
+    <div class="page-container">
+        <div class="container">
+            <form action="/edit" method="post" name="edit-form" >
+                <label for="pagename">Page Name:</label>
+                <input type="text" id="pagename" name="pagename" required>
+                <label for="title">Article Title:</label>
+                <input type="text" id="articleTitle" name="articleTitle">
+                <textarea id="htmlcontent" name="htmlcontent"></textarea>
+                <input type="submit" value="Save">
+            </form>
+        </div>
+            
+    </div>
     <footer>
         <p>&copy; Copyright 2023. Jeffrey Smith</p>
     </footer>
+    
     <script>
         tinymce.init({selector: 'textarea', 
-    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline striketrhough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap'});
+    plugins: 'anchor autolink charmap image link lists media searchreplace table  wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline striketrhough | link table | numlist bullist indent outdent '});
     </script>
 </body>
+
 </html>

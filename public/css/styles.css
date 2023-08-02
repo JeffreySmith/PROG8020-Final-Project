@@ -6,13 +6,15 @@
 body{
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     width:90vw;
-    margin:auto;
-    margin-top:20px;
+    margin:20px auto;
+
+
     background-color: white;
     border:solid black 3px;
     border-radius: 3px;
     padding:20px;
     
+
 }
 html{
     background-color:lightblue;
@@ -35,6 +37,20 @@ h1{
 main p{
     text-indent:4ch;
 }
+.container{
+    
+}
 footer{
+    width:80%;
+    border-top:solid 3px black;
+    display:flex;
+    margin:auto;
+    align-items:baseline;
+    justify-content: center;
     text-align:center;
+    
+    margin-top:100px;
+}
+button,input,select,textarea,optgroup{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
 }
