@@ -23,7 +23,7 @@ myApp.set("views",path.join(__dirname, "views"));
 myApp.use(express.static(__dirname + "/public"));
 myApp.use(upload());
 const pages = [];
-
+const reservedNames = ["edit","login","logout"];
 myApp.get("/",(req,res)=>{
    res.redirect('/HOME');
 });
@@ -92,6 +92,12 @@ myApp.post("/edit",[check("pagename").notEmpty()],(req,res)=>{
     console.log(pageName)
     pageName = pageName.replaceAll(' ','-');
     
+    for(const page of reservedNames){
+        if(pageName == page){
+            errors.push(`Page name '${page}' is a reserved name`);
+        }
+    }
+
     let filter = pages.filter(x=>x.route === pageName);
     console.log(`Filter length: ${filter.length}`);
     if(errors.length===0){
