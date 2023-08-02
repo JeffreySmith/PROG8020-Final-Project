@@ -36,8 +36,8 @@ myApp.get("/:name/",(req,res)=>{
     let filter = pages.filter(x=> x.route.toLowerCase() == name.toLowerCase());
     if(filter.length === 1){
         console.log("I'm running this for: "+"/"+name);
-        test.createNav(pages);
-        let html = test.createHTMLPage(filter[0].name,filter[0].name,filter[0].content,filter[0].image);
+        let nav = test.createNav(pages);
+        let html = test.createHTMLPage(filter[0].name,filter[0].name,filter[0].content,filter[0].image,nav);
         res.send(html);
     }
     else{
@@ -93,7 +93,7 @@ myApp.post("/edit",[check("pagename").notEmpty()],(req,res)=>{
     pageName = pageName.replaceAll(' ','-');
     
     for(const page of reservedNames){
-        if(pageName == page){
+        if(pageName.toLowerCase() == page){
             errors.push(`Page name '${page}' is a reserved name`);
         }
     }
