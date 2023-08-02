@@ -22,6 +22,7 @@
                     <input type="text" id="articleTitle" name="articleTitle" <% if(typeof(values)!='undefined'){%>value="<%= values.title %>" <%}%>>
                 </div>
                 <div>
+                    <!-- Seems to be a security thing/limitation of html. Can't set a value for file uploading-->
                     <label for="Image">Upload an image</label>
                     <input type="file" accept="image/*" id="Image" name="Image">
                 </div>

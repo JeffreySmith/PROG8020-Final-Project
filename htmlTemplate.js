@@ -1,5 +1,10 @@
 "use strict";
-function createHTMLPage(title,articleTitle,innerHTMLContent,image,navbar){
+function createHTMLPage(title,articleTitle,innerHTMLContent,image,navbar,admin){
+    let logInOrOut = '<a href="/login"><p>Login</p></a>';
+    if(admin){
+        logInOrOut = '<a href="/logout"><p>Logout</p></a>';
+    }
+    
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -17,6 +22,7 @@ function createHTMLPage(title,articleTitle,innerHTMLContent,image,navbar){
             
             <div><a href="/" title="home"><img src='https://placekitten.com/100/100'></a></div>
             <div><h2>My website</h2></div>
+            ${logInOrOut}
             
         </header>
         <nav>
