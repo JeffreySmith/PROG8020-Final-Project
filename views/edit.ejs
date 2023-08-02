@@ -11,12 +11,20 @@
 <body>
     <div class="page-container">
         <div class="container">
-            <form action="/edit" method="post" name="edit-form" >
-                <label for="pagename">Page Name:</label>
-                <input type="text" id="pagename" name="pagename" required>
-                <label for="title">Article Title:</label>
-                <input type="text" id="articleTitle" name="articleTitle">
-                <textarea id="htmlcontent" name="htmlcontent"></textarea>
+            <form action="/edit" method="post" name="edit-form" enctype="multipart/form-data">
+                <div>
+                    <label for="pagename">Page Name:</label>
+                    <input type="text" id="pagename" name="pagename" required>
+                </div>
+                <div>
+                    <label for="title">Article Title:</label>
+                    <input type="text" id="articleTitle" name="articleTitle">
+                </div>
+                <div>
+                    <label>Upload an image:</label>
+                    <input type="file" id="Image" name="Image">
+                </div>
+                <textarea id="htmlcontent" accept="image/*" name="htmlcontent"></textarea>
                 <input type="submit" value="Save">
             </form>
         </div>
