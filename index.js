@@ -35,8 +35,9 @@ myApp.get("/:name/",(req,res)=>{
 
     let filter = pages.filter(x=> x.route.toLowerCase() == name.toLowerCase());
     if(filter.length === 1){
-        console.log("I'm running this for: "+"/"+name);   
-        let html = test.createHTMLPage(filter[0].name,filter[0].name,filter[0].content);
+        console.log("I'm running this for: "+"/"+name);
+        test.createNav(pages);
+        let html = test.createHTMLPage(filter[0].name,filter[0].name,filter[0].content,filter[0].image);
         res.send(html);
     }
     else{
@@ -50,11 +51,12 @@ myApp.post("/edit",[check("htmlcontent").notEmpty(),check("pagename").notEmpty()
     let html=req.body.htmlcontent;
     let title = req.body.articleTitle;
     let pageName = req.body.pagename;
-    
+    const errors = [];
+    let imageName = "";
     if(req.files){
         console.log(req.files);
         let image = req.files.Image;
-        let imageName = "";
+        
 
         if(image){
             imageName = image.name;
@@ -66,8 +68,12 @@ myApp.post("/edit",[check("htmlcontent").notEmpty(),check("pagename").notEmpty()
                 image.mv(imageFolderPath,(err) => {
                     if(err){
                         console.log(`Error with ${imageName}:${err}`);
+                        errors.push("Something went wrong with uploading the file");
                     }
                 });
+            }
+            else{
+                errors.push("Please upload an image");
             }
         console.log(`Mimetype is: ${mimeType}`);
         }
@@ -79,24 +85,28 @@ myApp.post("/edit",[check("htmlcontent").notEmpty(),check("pagename").notEmpty()
     
     let filter = pages.filter(x=>x.route === pageName);
     console.log(`Filter length: ${filter.length}`);
-    if(filter.length===0){
-        let page = {
-            name:title,
-            route:pageName,
-            content:html
-        };
-        pages.push(page);
-        console.log(pageName);
-    }
-    else{
-        console.log(filter[0].route)
-        filter[0].name=title;
-        filter[0].content=html;
-        filter[0].route=pageName;
+    if(errors.length===0){
+        if(filter.length===0){
+            let page = {
+                name:title,
+                route:pageName,
+                content:html,
+                image:imageName
+            };
+            pages.push(page);
+            console.log(pageName);
+        }
+        if(filter.length===1){
+            console.log(filter[0].route)
+            filter[0].name=title;
+            filter[0].content=html;
+            filter[0].route=pageName;
+            filter[0].image=imageName;
+        }
     }   
     
     console.log(pages);
-    res.render("edit");
+    res.render("edit",{errors});
 });
 
 myApp.listen(port);

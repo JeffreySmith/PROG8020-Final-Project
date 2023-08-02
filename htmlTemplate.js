@@ -1,5 +1,5 @@
 "use strict";
-function createHTMLPage(title,articleTitle,innerHTMLContent){
+function createHTMLPage(title,articleTitle,innerHTMLContent,image){
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -18,7 +18,7 @@ function createHTMLPage(title,articleTitle,innerHTMLContent){
         <nav>
         </nav>
         <div class="container">
-            <img class="hero-image" src="imagePath" alt="Hero image here">
+            <img class="hero-image" src="/images/${image}" alt="Hero image here">
             <h1>${articleTitle}</h1>
             <main>
                 ${innerHTMLContent}
@@ -31,4 +31,13 @@ function createHTMLPage(title,articleTitle,innerHTMLContent){
     
     </html>`;
 }
-module.exports = {createHTMLPage};
+function createNav(pages){
+    let navBar = "";
+    for(const page of pages){
+        navBar+=`<a href="${page.route}">${page.route}</a>`;
+    }
+
+    console.log(navBar);
+    return navBar;
+}
+module.exports = {createHTMLPage,createNav};
