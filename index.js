@@ -16,22 +16,7 @@ myApp.use(session({
 }));
 
 const { check, validationResult } = require('express-validator');
-const { Z_ASCII } = require('zlib');
 
-/*let template = `<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Simple CMS</title>
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/styles.css">
-    </head>
-<body>`;
-let testInfo = `
-<p>Et ea pariatur amet eiusmod reprehenderit ea ipsum sunt occaecat cillum fugiat sint voluptate non eiusmod aliquip aliquip esse aliqua commodo magna sunt labore enim
-Labore eiusmod laboris amet consequat tempor quis magna quis quis fugiat <strong>cupidatat tempor</strong> incididunt officia sit pariatur cupidatat elit mollit ut voluptate proident sunt aute</p>
-`*/
 myApp.set("view engine", "ejs");
 myApp.use(express.urlencoded({ extended: true }));
 myApp.set("views",path.join(__dirname, "views"));
@@ -69,8 +54,24 @@ myApp.post("/edit",[check("htmlcontent").notEmpty(),check("pagename").notEmpty()
     if(req.files){
         console.log(req.files);
         let image = req.files.Image;
-        let imageName = image.name;
-        let 
+        let imageName = "";
+
+        if(image){
+            imageName = image.name;
+            let mimeType = image.mimetype;
+            //Check that the file is an image
+            if(/^image/.test(mimeType)){
+                console.log(`${imageName} is an image`);
+                const imageFolderPath = './public/images/' + imageName;
+                image.mv(imageFolderPath,(err) => {
+                    if(err){
+                        console.log(`Error with ${imageName}:${err}`);
+                    }
+                });
+            }
+        console.log(`Mimetype is: ${mimeType}`);
+        }
+        
     }
     
     console.log(pageName)
