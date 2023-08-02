@@ -14,6 +14,10 @@ function createHTMLPage(title,articleTitle,innerHTMLContent,image,navbar){
     <body>
         
         <header>
+            
+            <div><a href="/" title="home"><img src='https://placekitten.com/100/100'></a></div>
+            <div><h2>My website</h2></div>
+            
         </header>
         <nav>
             ${navbar}

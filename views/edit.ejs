@@ -15,19 +15,19 @@
             <form action="/edit" method="post" name="edit-form" enctype="multipart/form-data">
                 <div>
                     <label for="pagename">Page Name:</label>
-                    <input type="text" id="pagename" name="pagename">
+                    <input type="text" id="pagename" name="pagename" <% if(typeof(values)!='undefined'){%>value="<%= values.pageName %>" <%}%> >
                 </div>
                 <div>
                     <label for="title">Article Title:</label>
-                    <input type="text" id="articleTitle" name="articleTitle">
+                    <input type="text" id="articleTitle" name="articleTitle" <% if(typeof(values)!='undefined'){%>value="<%= values.title %>" <%}%>>
                 </div>
                 <div>
                     <label for="Image">Upload an image</label>
-                    <input type="file" id="Image" name="Image">
+                    <input type="file" accept="image/*" id="Image" name="Image">
                 </div>
                 
                 <div style="margin-bottom:20px;">
-                    <textarea id="htmlcontent" accept="image/*" name="htmlcontent"></textarea>
+                    <textarea id="htmlcontent"  name="htmlcontent" > <% if(typeof(values)!='undefined'){%><%= values.html %> <%}%> </textarea>
                     <input type="submit" value="Save">
                 </div>
             </form>

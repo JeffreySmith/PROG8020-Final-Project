@@ -12,19 +12,36 @@ body{
 
 
     background-color: white;
-    border:solid black 3px;
+    /*border:solid black 3px;*/
     border-radius: 3px;
     padding:20px;
     min-height: 768px;
     min-width: 1000px;
-
+    box-shadow: 0 1px 4px hsla(0,0%,0%,.2);
 }
 html{
     background-color:lightblue;
 }
+header{
+    display:flex;
+    align-items:center;
+    margin:0px;
+    margin-bottom:25px;
+}
+header img{
+    border-radius: 100%;
+}
+header div:nth-child(2){
+    margin-left:50px;
+}
+
 nav{
     display:flex;
-
+    justify-content:center;
+    
+    align-items: baseline;
+    border:2px solid black;
+    margin-bottom:20px;
 }
 nav a{
     margin:10px 20px;
@@ -32,15 +49,11 @@ nav a{
 header,main,footer{
     background-color:white;
 }
-header{
-    display:flex;
-    justify-content: center;
-}
 h1{
     text-align: center;
 }
 .hero-image{
-    width:100%;
+    max-width:100%;
     height:auto;
     margin:auto;
 }

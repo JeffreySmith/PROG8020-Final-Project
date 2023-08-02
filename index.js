@@ -1,21 +1,21 @@
 "use strict";
-const test = require('./htmlTemplate.js');
+//defines my dynamically creating html functions
+const {createHTMLPage,createNav} = require('./htmlTemplate.js');
 const express = require("express");
 const upload = require('express-fileupload');
-const myApp = new express();
 const path = require("path");
-const port = 8080;
 const mongoose = require("mongoose");
 const session = require("express-session");
+const { check, validationResult } = require('express-validator');
 
-
+const port = 8080;
+const myApp = new express();
 myApp.use(session({
     secret :"66b40822-73c6-50c4-a5d7-8fd3aa19152a",
     resave:false,
     saveUninitialized : true
 }));
 
-const { check, validationResult } = require('express-validator');
 
 myApp.set("view engine", "ejs");
 myApp.use(express.urlencoded({ extended: true }));
@@ -23,21 +23,21 @@ myApp.set("views",path.join(__dirname, "views"));
 myApp.use(express.static(__dirname + "/public"));
 myApp.use(upload());
 const pages = [];
-const reservedNames = ["edit","login","logout"];
+const reservedNames = ["edit","login","logout","dashboard"];
 myApp.get("/",(req,res)=>{
-   res.redirect('/HOME');
+   res.redirect('/home');
 });
 myApp.get("/edit",(req,res)=>{
     res.render('edit');
 });
 myApp.get("/:name/",(req,res)=>{
     let name = req.params.name;
-
+    //Every one of these 'filter' variables needs to eventually become a call to the db
     let filter = pages.filter(x=> x.route.toLowerCase() == name.toLowerCase());
     if(filter.length === 1){
         console.log("I'm running this for: "+"/"+name);
-        let nav = test.createNav(pages);
-        let html = test.createHTMLPage(filter[0].name,filter[0].name,filter[0].content,filter[0].image,nav);
+        let nav = createNav(pages);
+        let html = createHTMLPage(filter[0].name,filter[0].name,filter[0].content,filter[0].image,nav);
         res.send(html);
     }
     else{
@@ -90,17 +90,21 @@ myApp.post("/edit",[check("pagename").notEmpty()],(req,res)=>{
     }
     
     console.log(pageName)
+    //This prevents weird things happening with spaces in urls
     pageName = pageName.replaceAll(' ','-');
     
+    //We don't want someone trying to create a page that is predefined (like 'edit','login',etc)
+    //Those values will change as I add more features to the site
     for(const page of reservedNames){
         if(pageName.toLowerCase() == page){
             errors.push(`Page name '${page}' is a reserved name`);
         }
     }
-
+    //eventually a call to the db
     let filter = pages.filter(x=>x.route === pageName);
     console.log(`Filter length: ${filter.length}`);
     if(errors.length===0){
+        //This means a page with that name does not yet exist
         if(filter.length===0){
             let page = {
                 name:title,
@@ -111,6 +115,7 @@ myApp.post("/edit",[check("pagename").notEmpty()],(req,res)=>{
             pages.push(page);
             console.log(pageName);
         }
+        //This means we're updating an existing page
         if(filter.length===1){
             console.log(filter[0].route)
             filter[0].name=title;
@@ -119,9 +124,20 @@ myApp.post("/edit",[check("pagename").notEmpty()],(req,res)=>{
             filter[0].image=imageName;
         }
     }   
-    
+    let values={};
     console.log(pages);
-    res.render("edit",{errors});
+    if(errors.length>0){
+        values = {
+            html:html,
+            title:title,
+            pageName:pageName
+        };
+        res.render("edit",{errors,values});
+    }
+    else{
+        res.render("edit",{values});
+    }
+    
 });
 
 myApp.listen(port);
