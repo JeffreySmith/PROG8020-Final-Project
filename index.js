@@ -46,13 +46,19 @@ myApp.get("/:name/",(req,res)=>{
     }
 });
 
-myApp.post("/edit",[check("htmlcontent").notEmpty(),check("pagename").notEmpty()],(req,res)=>{
-
+myApp.post("/edit",[check("pagename").notEmpty()],(req,res)=>{
+    const expressErrors = validationResult(req);
     let html=req.body.htmlcontent;
     let title = req.body.articleTitle;
     let pageName = req.body.pagename;
     const errors = [];
     let imageName = "";
+    if(!expressErrors.isEmpty()){
+        for(let err of expressErrors.array()){
+            console.log(`Express errors: ${err.msg}`);
+        }
+        errors.push("You must supply a page name");
+    }
     if(req.files){
         console.log(req.files);
         let image = req.files.Image;
@@ -75,9 +81,12 @@ myApp.post("/edit",[check("htmlcontent").notEmpty(),check("pagename").notEmpty()
             else{
                 errors.push("Please upload an image");
             }
-        console.log(`Mimetype is: ${mimeType}`);
+            console.log(`Mimetype is: ${mimeType}`);
         }
         
+    }
+    else{
+        errors.push("Please upload an image");
     }
     
     console.log(pageName)

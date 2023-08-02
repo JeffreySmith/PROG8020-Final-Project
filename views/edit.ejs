@@ -15,7 +15,7 @@
             <form action="/edit" method="post" name="edit-form" enctype="multipart/form-data">
                 <div>
                     <label for="pagename">Page Name:</label>
-                    <input type="text" id="pagename" name="pagename" required>
+                    <input type="text" id="pagename" name="pagename">
                 </div>
                 <div>
                     <label for="title">Article Title:</label>
@@ -37,7 +37,7 @@
     <div>
         <% if(typeof(errors)!='undefined'){
             for(let err of errors){ %>
-                <p><%= err %></p>
+                <p class="error-text"><%= err %></p>
         <%}}%>
     </div>
     <footer>

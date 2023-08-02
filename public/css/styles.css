@@ -34,7 +34,11 @@ h1{
 }
 .hero-image{
     width:100%;
+    height:auto;
     margin:auto;
+}
+.error-text{
+    font-weight:600;
 }
 input[type="submit"]{
     padding:5px 20px;
