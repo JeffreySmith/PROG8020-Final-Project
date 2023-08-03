@@ -24,8 +24,38 @@ myApp.use(express.static(__dirname + "/public"));
 myApp.use(upload());
 const pages = [];
 const reservedNames = ["edit","login","logout","dashboard","add"];
+function checkImage(image,errors){
+    let imageName="";
+    if(image){
+        imageName = image.name;
+        let mimeType = image.mimetype;
+        //Check that the file is an image
+        if(/^image/.test(mimeType)){
+            console.log(`${imageName} is an image`);
+            const imageFolderPath = './public/images/' + imageName;
+            image.mv(imageFolderPath,(err) => {
+                if(err){
+                    console.log(`Error with ${imageName}:${err}`);
+                    errors.push("Something went wrong with uploading the file");
+                }
+            });
+            
+        }
+        else{
+            errors.push("Please upload an image");
+        }
+        console.log(`Mimetype is: ${mimeType}`);
+        
+    }
+    return imageName;
+}
+
 myApp.get("/",(req,res)=>{
-   res.redirect('/home');
+    //eventually, check if 'home' exists before redirecting. Send to login
+    res.redirect('/home');
+});
+myApp.get("/login",(req,res)=>{
+    res.render('login');
 });
 myApp.get("/add",(req,res)=>{
     res.render('add');
@@ -52,6 +82,11 @@ myApp.get("/edit/:name/",(req,res)=>{
         res.redirect('/add');
     }
 });
+myApp.get("/delete/:name/",(req,res)=>{
+    let name = req.params.name;
+    console.log(`Deleting ${name}...`);
+    res.redirect('/dashboard');
+});
 
 myApp.get("/:name/",(req,res)=>{
     let name = req.params.name;
@@ -75,9 +110,29 @@ myApp.post("/edit",(req,res)=>{
     let pageName = req.body.pagename;
     let image = "";
     let imageName = "";
+    //Currently this exists twice. Probably time to convert to a function
     if(req.files){
         image = req.files.Image;
-        imageName = image.name;
+        /*if(image){
+            imageName = image.name;
+            let mimeType = image.mimetype;
+            //Check that the file is an image
+            if(/^image/.test(mimeType)){
+                console.log(`${imageName} is an image`);
+                const imageFolderPath = './public/images/' + imageName;
+                image.mv(imageFolderPath,(err) => {
+                    if(err){
+                        console.log(`Error with ${imageName}:${err}`);
+                        errors.push("Something went wrong with uploading the file");
+                    }
+                });
+            }
+            else{
+                errors.push("Please upload an image");
+            }
+            console.log(`Mimetype is: ${mimeType}`);
+        }*/
+        imageName=checkImage(image);
     }
 
     const errors = [];
@@ -140,7 +195,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
         let image = req.files.Image;
         
 
-        if(image){
+        /*if(image){
             imageName = image.name;
             let mimeType = image.mimetype;
             //Check that the file is an image
@@ -158,7 +213,8 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
                 errors.push("Please upload an image");
             }
             console.log(`Mimetype is: ${mimeType}`);
-        }
+        }*/
+        imageName=checkImage(image,errors);
         
     }
     else{
@@ -192,7 +248,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
             console.log(pageName);
         }
         //This means we're updating an existing page
-        if(filter.length===1){
+        /*if(filter.length===1){
             if(imageName!=""){
                 filter[0].image=imageName;
             }
@@ -203,8 +259,8 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
             filter[0].name=title;
             filter[0].content=html;
             filter[0].route=pageName;
-            /*filter[0].image=imageName;*/
-        }
+            filter[0].image=imageName;
+        }*/
     }   
     let values={};
     console.log(pages);

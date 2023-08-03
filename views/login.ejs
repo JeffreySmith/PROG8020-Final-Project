@@ -3,9 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/styles.css">
     <title>Login</title>
 </head>
 <body>
+    <%- include('layouts/header'); -%>
     
+    <form action="/login" method="post" name="edit-form" enctype="multipart/form-data">
+        <div>
+            <label for="username">Username:</label>
+            <input type="input" id="username" name="username" placeholder="User name here">
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Password">
+        </div>
+        <input type="submit" value="Login">
+    </form>
+    <%- include('layouts/footer'); -%>
 </body>
 </html>

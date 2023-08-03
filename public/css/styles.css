@@ -11,7 +11,7 @@ body{
     margin:20px auto;
 
 
-    background-color: white;
+    background-color: hsl(205,20%,98%);
     /*border:solid black 3px;*/
     border-radius: 3px;
     padding:20px;
@@ -27,6 +27,7 @@ header{
     align-items:center;
     margin:0px;
     margin-bottom:25px;
+    background-color: hsl(205,20%,98%);
 }
 header img{
     border-radius: 100%;
@@ -50,8 +51,8 @@ nav{
 nav a{
     margin:10px 20px;
 }
-header,main,footer{
-    background-color:white;
+header,footer{
+    background-color: hsl(205,20%,98%);
 }
 h1{
     text-align: center;
@@ -83,6 +84,7 @@ table{
     margin:auto;
     border-collapse: collapse;
     border-spacing:30px;
+    background-color: #FFF;
     box-shadow:0px 3px 6px hsla(0,0%,0%,.4);
 }
 td,th{
