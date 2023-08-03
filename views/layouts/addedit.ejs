@@ -1,41 +1,18 @@
+<div>
+    <label for="pagename">Page Name:</label>
+    <input type="text" id="pagename" name="pagename" <% if(typeof(values)!='undefined'){%>value="<%= values.pageName %>" <%}%> >
+</div>
+<div>
+    <label for="title">Article Title:</label>
+    <input type="text" id="articleTitle" name="articleTitle" <% if(typeof(values)!='undefined'){%>value="<%= values.title %>" <%}%>>
+</div>
+<div>
+    <!-- Seems to be a security thing/limitation of html. Can't set a value for file uploading-->
+    <label for="Image">Upload an image</label>
+    <input type="file" accept="image/*" id="Image" name="Image">
+</div>
 
-    <div class="page-container">
-        <div class="container">
-            <form action="/add" method="post" name="edit-form" enctype="multipart/form-data">
-                <div>
-                    <label for="pagename">Page Name:</label>
-                    <input type="text" id="pagename" name="pagename" <% if(typeof(values)!='undefined'){%>value="<%= values.pageName %>" <%}%> >
-                </div>
-                <div>
-                    <label for="title">Article Title:</label>
-                    <input type="text" id="articleTitle" name="articleTitle" <% if(typeof(values)!='undefined'){%>value="<%= values.title %>" <%}%>>
-                </div>
-                <div>
-                    <!-- Seems to be a security thing/limitation of html. Can't set a value for file uploading-->
-                    <label for="Image">Upload an image</label>
-                    <input type="file" accept="image/*" id="Image" name="Image">
-                </div>
-                
-                <div style="margin-bottom:20px;">
-                    <textarea id="htmlcontent"  name="htmlcontent" > <% if(typeof(values)!='undefined'){%><%= values.html %> <%}%> </textarea>
-                    <input type="submit" value="Save">
-                </div>
-            </form>
-        </div>
-            
-    </div>
-    <div>
-        <% if(typeof(errors)!='undefined'){
-            for(let err of errors){ %>
-                <p class="error-text"><%= err %></p>
-        <%}}%>
-    </div>
-    <footer>
-        <p>&copy; Copyright 2023. Jeffrey Smith</p>
-    </footer>
-    
-    <script>
-        tinymce.init({selector: 'textarea', 
-    plugins: 'anchor autolink charmap image link lists media searchreplace table  wordcount',
-    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline striketrhough | link table | numlist bullist indent outdent '});
-    </script>
+<div style="margin-bottom:20px;">
+    <textarea id="htmlcontent"  name="htmlcontent" > <% if(typeof(values)!='undefined'){%><%= values.html %> <%}%> </textarea>
+    <input type="submit" value="Save">
+</div>

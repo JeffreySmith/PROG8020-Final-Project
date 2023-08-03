@@ -46,12 +46,13 @@ myApp.get("/edit/:name/",(req,res)=>{
             pageName:filter[0].route
         };
         console.log(values);
-        res.render('add',{values});
+        res.render('edit',{values});
     }
     else{
         res.redirect('/add');
     }
 });
+
 myApp.get("/:name/",(req,res)=>{
     let name = req.params.name;
     //Every one of these 'filter' variables needs to eventually become a call to the db
@@ -68,7 +69,7 @@ myApp.get("/:name/",(req,res)=>{
     }
 });
 
-myApp.post("/add",[check("pagename").notEmpty()],(req,res)=>{
+myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
     const expressErrors = validationResult(req);
     let html=req.body.htmlcontent;
     let title = req.body.articleTitle;
@@ -83,10 +84,10 @@ myApp.post("/add",[check("pagename").notEmpty()],(req,res)=>{
     }
     //Eventually don't let it put this value in on error. It should not insert an invalid page route
     if(pageName.includes('/')){
-        errors.push("Please only put letters or digits in the page title")
+        errors.push("Please don't put a '/' in the page name");
     }
 
-    if(req.files){
+    if(req.files ){
         console.log(req.files);
         let image = req.files.Image;
         
@@ -144,11 +145,17 @@ myApp.post("/add",[check("pagename").notEmpty()],(req,res)=>{
         }
         //This means we're updating an existing page
         if(filter.length===1){
+            if(imageName!=""){
+                filter[0].image=imageName;
+            }
+            else{
+                filter[0].image=filter[0].image;
+            }
             console.log(filter[0].route)
             filter[0].name=title;
             filter[0].content=html;
             filter[0].route=pageName;
-            filter[0].image=imageName;
+            /*filter[0].image=imageName;*/
         }
     }   
     let values={};
