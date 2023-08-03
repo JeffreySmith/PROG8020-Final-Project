@@ -17,7 +17,7 @@
             <% if(typeof(pages)!='undefined'){%>
                 <% for(let page of pages){%>
                     <tr>
-                        <td><%=page.name%></td>
+                        <td>/<%=page.route%></td>
                         <td><a href="/edit/<%=page.route%>">Update</a></td>
                         <td><a href="/delete/<%=page.route%>">Delete</a></td>
                     </tr>

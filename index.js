@@ -68,7 +68,55 @@ myApp.get("/:name/",(req,res)=>{
         res.redirect('/add');
     }
 });
+myApp.post("/edit",(req,res)=>{
+    const expressErrors = validationResult(req);
+    let html=req.body.htmlcontent;
+    let title = req.body.articleTitle;
+    let pageName = req.body.pagename;
+    let image = "";
+    let imageName = "";
+    if(req.files){
+        image = req.files.Image;
+        imageName = image.name;
+    }
 
+    const errors = [];
+    
+    if(!expressErrors.isEmpty()){
+        for(let err of expressErrors.array()){
+            console.log(`Express errors: ${err.msg}`);
+        }
+        errors.push("You must supply a page name");
+    }
+    //Eventually don't let it put this value in on error. It should not insert an invalid page route
+    if(pageName.includes('/')){
+        errors.push("Please don't put a '/' in the page name");
+    }
+
+
+    let filter = pages.filter(x=>x.route.toLowerCase() == pageName.toLowerCase());
+    let values={};
+    if(errors.length===0 && filter.length===1){
+        
+        if(imageName!=""){
+            filter[0].image=imageName;
+        }
+        else{
+            filter[0].image=filter[0].image;
+        }
+        console.log(filter[0].route)
+        filter[0].name=title;
+        filter[0].content=html;
+        filter[0].route=pageName;
+        res.redirect("/dashboard");
+    }
+    else if(filter.length===0){
+        res.redirect("/add");
+    }
+    else{
+        res.render("edit",{errors,values});
+    }
+});
 myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
     const expressErrors = validationResult(req);
     let html=req.body.htmlcontent;
