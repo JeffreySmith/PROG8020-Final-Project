@@ -65,7 +65,7 @@ myApp.get("/:name/",(req,res)=>{
     }
     else{
         console.log(req.url)   
-        res.redirect('/add');
+        res.redirect('/home');
     }
 });
 myApp.post("/edit",(req,res)=>{
@@ -217,7 +217,8 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
         res.render("add",{errors,values});
     }
     else{
-        res.render("add",{values});
+        //res.render("add",{values});
+        res.redirect("/dashboard");
     }
     
 });
