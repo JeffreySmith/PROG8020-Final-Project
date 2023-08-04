@@ -11,6 +11,8 @@
 <body>
     <%- include('layouts/adminnav'); -%>
     <h1>Edit Page</h1>
+    <% if(typeof(confirmation)=="undefined"){%>
+    
     <div class="page-container">
         <div class="container">
             <form action="/edit" method="post" name="edit-form" enctype="multipart/form-data">
@@ -19,6 +21,10 @@
         </div>
             
     </div>
+    <% } %>
+
+    <%- include('layouts/confirm'); -%>
+
     <%- include('layouts/errors'); -%>
     <%- include('layouts/footer'); -%>
     <%- include('layouts/tinymce'); -%>

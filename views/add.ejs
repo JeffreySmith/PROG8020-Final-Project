@@ -11,15 +11,20 @@
 <body>
     <%- include('layouts/header'); -%>
     <%- include('layouts/adminnav'); -%>
+    
     <h1>Add Page</h1>
-    <div class="page-container">
-        <div class="container">
-            <form action="/add" method="post" name="edit-form" enctype="multipart/form-data">
-                <%- include('layouts/addedit'); -%>
-            </form>
+    <% if(typeof(confirmation)=='undefined'){ %>
+        <div class="page-container">
+            <div class="container">
+                <form action="/add" method="post" name="edit-form" enctype="multipart/form-data">
+                    <%- include('layouts/addedit'); -%>
+                </form>
+            </div>
+                
         </div>
-            
-    </div>
+    <% } %>
+    <%- include('layouts/confirm'); -%>
+
     <%- include('layouts/errors'); -%>
 
     <%- include('layouts/footer'); -%>

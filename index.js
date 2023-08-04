@@ -57,10 +57,16 @@ function checkImage(image,errors){
 }
 
 myApp.get("/",(req,res)=>{
+    if(req.session.admin==undefined){
+        req.session.admin = false;
+    }
     //eventually, check if 'home' exists before redirecting. Send to login
     res.redirect('/home');
 });
 myApp.get("/login",(req,res)=>{
+    if(req.session.admin==undefined){
+        req.session.admin = false;
+    }
     if(req.session.admin!=undefined && req.session.admin){
         res.redirect('dashboard');
     }
@@ -70,6 +76,9 @@ myApp.get("/login",(req,res)=>{
     
 });
 myApp.get("/add",(req,res)=>{
+    if(req.session.admin==undefined){
+        req.session.admin = false;
+    }
     if(req.session.admin!=undefined && req.session.admin){
         res.render("add");
     }
@@ -79,6 +88,10 @@ myApp.get("/add",(req,res)=>{
     
 });
 myApp.get("/dashboard",(req,res)=>{
+    if(req.session.admin==undefined){
+        req.session.admin = false;
+    }
+    //need a call to the db here to get page info
     if(req.session.admin!=undefined && req.session.admin){
         res.render("dashboard",{pages});
     }
@@ -89,6 +102,9 @@ myApp.get("/dashboard",(req,res)=>{
 });
 myApp.get("/edit/:name/",(req,res)=>{
     let name = req.params.name;
+    if(req.session.admin==undefined){
+        req.session.admin = false;
+    }
     console.log(`/edit/${name}`);
     //pages.forEach(x=>console.log(x));
     let filter = pages.filter(x=>x.route.toLowerCase() == name.toLowerCase());
@@ -107,9 +123,12 @@ myApp.get("/edit/:name/",(req,res)=>{
     }
 });
 myApp.get("/delete/:name/",(req,res)=>{
+    if(req.session.admin==undefined){
+        req.session.admin = false;
+    }
     let name = req.params.name;
     let filter = pages.filter(x=>x.route.toLowerCase() == name.toLowerCase());
-    if (filter.length===1){
+    if (filter.length===1 && req.session.admin){
         let index = pages.findIndex(x=>  x.route.toLowerCase() === name.toLowerCase());
         console.log(`index is: ${index}`);
         pages = [
@@ -117,12 +136,23 @@ myApp.get("/delete/:name/",(req,res)=>{
             ...pages.slice(index+1)
         ];
         console.log(`Deleted page /${name} successfully`);
+        let confirmation = {
+            confirm:true,
+            name:name
+        }
+        res.render('delete',{confirmation});
     }
-    res.redirect('/dashboard');
+    else{
+        res.redirect('/dashboard');
+    }
+    
 });
 
 myApp.get("/:name/",(req,res)=>{
     let name = req.params.name;
+    if(req.session.admin==undefined){
+        req.session.admin = false;
+    }
     //Every one of these 'filter' variables needs to eventually become a call to the db
     let filter = pages.filter(x=> x.route.toLowerCase() == name.toLowerCase());
     if(filter.length === 1){
@@ -141,6 +171,7 @@ myApp.get("/:name/",(req,res)=>{
         }
     }
 });
+
 myApp.post("/edit",(req,res)=>{
     const expressErrors = validationResult(req);
     let html=req.body.htmlcontent;
@@ -184,10 +215,12 @@ myApp.post("/edit",(req,res)=>{
         filter[0].name=title;
         filter[0].content=html;
         filter[0].route=pageName;
-        res.redirect("/dashboard");
+
+        let confirmation = {confirm:true};
+        res.render("edit",{confirmation});
     }
     else if(filter.length===0){
-        res.redirect("/add");
+        res.redirect("/dashboard");
     }
     else{
         res.render("edit",{errors,values});
@@ -261,10 +294,10 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
         res.render("add",{errors,values});
     }
     else{
+        let confirmation = {confirm:true};
         //res.render("add",{values});
-        res.redirect("/dashboard");
+        res.render("add",{confirmation});
     }
-    
 });
 myApp.post('/login',(req,res)=>{
     if(req.session.admin==undefined){
@@ -288,7 +321,6 @@ myApp.post('/login',(req,res)=>{
         }
         res.render('login',{errors});
     }
-
 });
 myApp.listen(port);
 console.log("Server running");

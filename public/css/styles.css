@@ -57,6 +57,9 @@ header,footer{
 h1{
     text-align: center;
 }
+.centre-text{
+    text-align:center;
+}
 .hero-image{
     max-width:100%;
     height:auto;
