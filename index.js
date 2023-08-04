@@ -22,8 +22,14 @@ myApp.use(express.urlencoded({ extended: true }));
 myApp.set("views",path.join(__dirname, "views"));
 myApp.use(express.static(__dirname + "/public"));
 myApp.use(upload());
-const pages = [];
+let pages = [];
 const reservedNames = ["edit","login","logout","dashboard","add"];
+
+//Yes, this is bad practice for a real application. This is to simplify testing for me, and also to make it easy for you to try the code out and verify
+//it does all of the things I say it does
+const username = 'admin';
+const password = 'admin';
+
 function checkImage(image,errors){
     let imageName="";
     if(image){
@@ -55,13 +61,31 @@ myApp.get("/",(req,res)=>{
     res.redirect('/home');
 });
 myApp.get("/login",(req,res)=>{
-    res.render('login');
+    if(req.session.admin!=undefined && req.session.admin){
+        res.redirect('dashboard');
+    }
+    else{
+        res.render('login');
+    }
+    
 });
 myApp.get("/add",(req,res)=>{
-    res.render('add');
+    if(req.session.admin!=undefined && req.session.admin){
+        res.render("add");
+    }
+    else{
+        res.redirect('/login');
+    }
+    
 });
 myApp.get("/dashboard",(req,res)=>{
-    res.render("dashboard",{pages});
+    if(req.session.admin!=undefined && req.session.admin){
+        res.render("dashboard",{pages});
+    }
+    else{
+        res.redirect('/login');
+    }
+    
 });
 myApp.get("/edit/:name/",(req,res)=>{
     let name = req.params.name;
@@ -69,7 +93,7 @@ myApp.get("/edit/:name/",(req,res)=>{
     //pages.forEach(x=>console.log(x));
     let filter = pages.filter(x=>x.route.toLowerCase() == name.toLowerCase());
     console.log(`There are ${filter.length} elements in the filter for ${name}`);
-    if(filter.length===1){
+    if(filter.length===1 && req.session.admin!=undefined && req.session.admin){
         let values = {
             html:filter[0].content,
             title:filter[0].name,
@@ -79,12 +103,21 @@ myApp.get("/edit/:name/",(req,res)=>{
         res.render('edit',{values});
     }
     else{
-        res.redirect('/add');
+        res.redirect('/dashboard');
     }
 });
 myApp.get("/delete/:name/",(req,res)=>{
     let name = req.params.name;
-    console.log(`Deleting ${name}...`);
+    let filter = pages.filter(x=>x.route.toLowerCase() == name.toLowerCase());
+    if (filter.length===1){
+        let index = pages.findIndex(x=>  x.route.toLowerCase() === name.toLowerCase());
+        console.log(`index is: ${index}`);
+        pages = [
+            ...pages.slice(0,index),
+            ...pages.slice(index+1)
+        ];
+        console.log(`Deleted page /${name} successfully`);
+    }
     res.redirect('/dashboard');
 });
 
@@ -100,7 +133,12 @@ myApp.get("/:name/",(req,res)=>{
     }
     else{
         console.log(req.url)   
-        res.redirect('/home');
+        if(pages.findIndex(x=>x.route.toLowerCase()==="home")!=-1){
+            res.redirect('/home');
+        }
+        else{
+            res.redirect('/login');
+        }
     }
 });
 myApp.post("/edit",(req,res)=>{
@@ -113,25 +151,8 @@ myApp.post("/edit",(req,res)=>{
     //Currently this exists twice. Probably time to convert to a function
     if(req.files){
         image = req.files.Image;
-        /*if(image){
-            imageName = image.name;
-            let mimeType = image.mimetype;
-            //Check that the file is an image
-            if(/^image/.test(mimeType)){
-                console.log(`${imageName} is an image`);
-                const imageFolderPath = './public/images/' + imageName;
-                image.mv(imageFolderPath,(err) => {
-                    if(err){
-                        console.log(`Error with ${imageName}:${err}`);
-                        errors.push("Something went wrong with uploading the file");
-                    }
-                });
-            }
-            else{
-                errors.push("Please upload an image");
-            }
-            console.log(`Mimetype is: ${mimeType}`);
-        }*/
+        
+        //*TODO*Check for valid filetype here, but allow none for editing
         imageName=checkImage(image);
     }
 
@@ -194,26 +215,6 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
         console.log(req.files);
         let image = req.files.Image;
         
-
-        /*if(image){
-            imageName = image.name;
-            let mimeType = image.mimetype;
-            //Check that the file is an image
-            if(/^image/.test(mimeType)){
-                console.log(`${imageName} is an image`);
-                const imageFolderPath = './public/images/' + imageName;
-                image.mv(imageFolderPath,(err) => {
-                    if(err){
-                        console.log(`Error with ${imageName}:${err}`);
-                        errors.push("Something went wrong with uploading the file");
-                    }
-                });
-            }
-            else{
-                errors.push("Please upload an image");
-            }
-            console.log(`Mimetype is: ${mimeType}`);
-        }*/
         imageName=checkImage(image,errors);
         
     }
@@ -247,20 +248,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
             pages.push(page);
             console.log(pageName);
         }
-        //This means we're updating an existing page
-        /*if(filter.length===1){
-            if(imageName!=""){
-                filter[0].image=imageName;
-            }
-            else{
-                filter[0].image=filter[0].image;
-            }
-            console.log(filter[0].route)
-            filter[0].name=title;
-            filter[0].content=html;
-            filter[0].route=pageName;
-            filter[0].image=imageName;
-        }*/
+        
     }   
     let values={};
     console.log(pages);
@@ -278,6 +266,29 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
     }
     
 });
+myApp.post('/login',(req,res)=>{
+    if(req.session.admin==undefined){
+        req.session.admin=false;
+    }
+    let user = req.body.username;
+    let pass = req.body.password;
 
+    let errors = [];
+    if(user === username && pass === password){
+        req.session.admin=true;
+        console.log(`Logged in as admin:${req.session.admin}`);
+        res.redirect('/dashboard');
+    }
+    else{
+        if(user!==username){
+            errors.push("Invalid username");
+        }
+        if(pass!==password){
+            errors.push("Invalid password");
+        }
+        res.render('login',{errors});
+    }
+
+});
 myApp.listen(port);
 console.log("Server running");

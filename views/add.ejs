@@ -20,12 +20,7 @@
         </div>
             
     </div>
-    <div>
-        <% if(typeof(errors)!='undefined'){
-            for(let err of errors){ %>
-                <p class="error-text"><%= err %></p>
-        <%}}%>
-    </div>
+    <%- include('layouts/errors'); -%>
 
     <%- include('layouts/footer'); -%>
     <%- include('layouts/tinymce'); -%>

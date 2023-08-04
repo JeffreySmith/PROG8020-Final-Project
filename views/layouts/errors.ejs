@@ -1,0 +1,8 @@
+<% if(typeof(errors)!='undefined'){ %>
+<div class="errors">
+    <p class="error-text">-- Please fix the following errors -- </p>
+    
+        <%for(let err of errors){ %>
+            <p class="error-text"><%= err %></p>
+    <%}%>
+</div><% } %>
