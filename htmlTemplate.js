@@ -43,10 +43,12 @@ function createHTMLPage(title,articleTitle,innerHTMLContent,image,navbar,admin){
 }
 function createNav(pages){
     let navBar = "";
+    console.log('Pages is '+pages+' before we try making the navbar') ;
     for(const page of pages){
-        navBar+=`<a href="${page.route}">${page.route}</a>`;
+        console.log('Route: '+page);
+        navBar+=`<a href="${page}">${page}</a>`;
     }
-    console.log(navBar);
+    console.log('Navbar is: '+navBar);
     return navBar;
 }
 module.exports = {createHTMLPage,createNav};

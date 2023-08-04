@@ -9,6 +9,7 @@
     <script src="https://cdn.tiny.cloud/1/pjhv6b272ctrjq90csxbmsy1fxqv4trr1w459senwahhyoyr/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 </head>
 <body>
+    <%- include('layouts/header'); -%>
     <%- include('layouts/adminnav'); -%>
     <h1>Edit Page</h1>
     <% if(typeof(confirmation)=="undefined"){%>
@@ -16,7 +17,26 @@
     <div class="page-container">
         <div class="container">
             <form action="/edit" method="post" name="edit-form" enctype="multipart/form-data">
-                <%- include('layouts/addedit'); -%>
+                <!-- <div>
+                    <label for="pagename">Page Name:</label>
+                    <input type="text" id="pagename" readonly name="pagename" <% if(typeof(values)!='undefined'){%>value="<%= values.pageName %>" <%}%> >
+                </div>
+                -->
+                <input type="hidden" name="pagename" <% if(typeof(values)!='undefined'){%>value="<%= values.pageName %>" <%}%> >
+                <div>
+                    <label for="title">Article Title:</label>
+                    <input type="text" id="articleTitle" name="articleTitle" <% if(typeof(values)!='undefined'){%>value="<%= values.title %>" <%}%>>
+                </div>
+                <div>
+                    <!-- Seems to be a security thing/limitation of html. Can't set a value for file uploading-->
+                    <label for="Image">Upload an image</label>
+                    <input type="file" accept="image/*" id="Image" name="Image">
+                </div>
+                
+                <div style="margin-bottom:20px;">
+                    <textarea id="htmlcontent"  name="htmlcontent" > <% if(typeof(values)!='undefined'){%><%= values.html %> <%}%> </textarea>
+                    <input type="submit" value="Save">
+                </div>
             </form>
         </div>
             

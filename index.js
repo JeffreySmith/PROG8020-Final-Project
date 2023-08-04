@@ -15,20 +15,27 @@ myApp.use(session({
     resave:false,
     saveUninitialized : true
 }));
-
-
+mongoose.connect("mongodb://localhost:27017/cms-jeffrey",{
+    UseNewURLParser:true,
+    UseUnifiedTopology:true,
+});
+const Page = mongoose.model("pages",{
+    html:String,
+    route:String,
+    title:String,
+    imageName:String
+});
+const Credentials = mongoose.model("credentials",{
+    username:String,
+    password:String
+});
 myApp.set("view engine", "ejs");
 myApp.use(express.urlencoded({ extended: true }));
 myApp.set("views",path.join(__dirname, "views"));
 myApp.use(express.static(__dirname + "/public"));
 myApp.use(upload());
-let pages = [];
-const reservedNames = ["edit","login","logout","dashboard","add"];
 
-//Yes, this is bad practice for a real application. This is to simplify testing for me, and also to make it easy for you to try the code out and verify
-//it does all of the things I say it does
-const username = 'admin';
-const password = 'admin';
+const reservedNames = ["edit","login","logout","dashboard","add"];
 
 function checkImage(image,errors){
     let imageName="";
@@ -75,6 +82,10 @@ myApp.get("/login",(req,res)=>{
     }
     
 });
+myApp.get("/logout",(req,res)=>{
+    req.session.admin = false;
+    res.redirect('/login');
+});
 myApp.get("/add",(req,res)=>{
     if(req.session.admin==undefined){
         req.session.admin = false;
@@ -91,9 +102,17 @@ myApp.get("/dashboard",(req,res)=>{
     if(req.session.admin==undefined){
         req.session.admin = false;
     }
-    //need a call to the db here to get page info
+    //need a call to the db here to get page info.
+    //this is a SELECT * kind of call
     if(req.session.admin!=undefined && req.session.admin){
-        res.render("dashboard",{pages});
+        Page.find({}).then((page)=>{
+            console.log(page);
+            let pages = page;
+            res.render("dashboard",{pages});
+        }).catch((error)=>{
+            console.log(`Error:${error}`);
+        });
+        //res.render("dashboard",{pages});
     }
     else{
         res.redirect('/login');
@@ -106,7 +125,7 @@ myApp.get("/edit/:name/",(req,res)=>{
         req.session.admin = false;
     }
     console.log(`/edit/${name}`);
-    //pages.forEach(x=>console.log(x));
+
     let filter = pages.filter(x=>x.route.toLowerCase() == name.toLowerCase());
     console.log(`There are ${filter.length} elements in the filter for ${name}`);
     if(filter.length===1 && req.session.admin!=undefined && req.session.admin){
@@ -153,8 +172,49 @@ myApp.get("/:name/",(req,res)=>{
     if(req.session.admin==undefined){
         req.session.admin = false;
     }
+    let pages = [];
+    //async problems led me to have to structure things this way. That was an incredibly frustrating bug
+    //to figure out. My functions would *sometimes* succeed, then other times fail.
+    Page.find({}).then((navPage)=>{
+        console.log(`return from mongodb: ${navPage}`);
+        for(let p of navPage){
+            console.log(`Running for: ${p}`);
+            pages.push(p.route);
+            
+        }
+        console.log(`eia,srntietnihar${navPage[0].route}`);
+        
+        Page.findOne({route:name.toLowerCase()}).then((page)=>{
+        
+            if(page){
+                let nav = createNav(pages);
+                let html = createHTMLPage(page.title,page.title,page.html,page.imageName,nav);
+                res.send(html);
+            }
+            else{
+                Page.findOne({route:'home'}).then((homePage)=>{
+                    if(homePage){
+                        res.redirect('/home');
+                    }
+                    else{
+                        res.redirect('/dashboard');
+                    }
+                }).catch((error)=>{
+                    console.log(`Error:${error}`);
+                });
+            }
+        }).catch((error)=>{
+            console.log(`Error:${error}`);
+        });
+
+    }).catch((error)=>{
+        console.log(`Error:${error}`);
+    });
+    
     //Every one of these 'filter' variables needs to eventually become a call to the db
-    let filter = pages.filter(x=> x.route.toLowerCase() == name.toLowerCase());
+    
+    
+    /*let filter = pages.filter(x=> x.route.toLowerCase() == name.toLowerCase());
     if(filter.length === 1){
         console.log("I'm running this for: "+"/"+name);
         let nav = createNav(pages);
@@ -169,25 +229,25 @@ myApp.get("/:name/",(req,res)=>{
         else{
             res.redirect('/login');
         }
-    }
+    }*/
 });
 
 myApp.post("/edit",(req,res)=>{
     const expressErrors = validationResult(req);
     let html=req.body.htmlcontent;
     let title = req.body.articleTitle;
-    let pageName = req.body.pagename;
     let image = "";
     let imageName = "";
-    //Currently this exists twice. Probably time to convert to a function
+    let pageName = req.body.pagename;
+    const errors = [];
     if(req.files){
         image = req.files.Image;
         
-        //*TODO*Check for valid filetype here, but allow none for editing
-        imageName=checkImage(image);
+        //*TODO*Check for valid filetype here, but allow none if they don't want to change the photo here
+        imageName=checkImage(image,errors);
     }
 
-    const errors = [];
+    
     
     if(!expressErrors.isEmpty()){
         for(let err of expressErrors.array()){
@@ -195,13 +255,11 @@ myApp.post("/edit",(req,res)=>{
         }
         errors.push("You must supply a page name");
     }
-    //Eventually don't let it put this value in on error. It should not insert an invalid page route
-    if(pageName.includes('/')){
-        errors.push("Please don't put a '/' in the page name");
-    }
-
-
-    let filter = pages.filter(x=>x.route.toLowerCase() == pageName.toLowerCase());
+    
+    
+    console.log(`PageName:${pageName}`);
+    let filter = pages.filter(x=>x.route === pageName);
+    
     let values={};
     if(errors.length===0 && filter.length===1){
         
@@ -212,17 +270,26 @@ myApp.post("/edit",(req,res)=>{
             filter[0].image=filter[0].image;
         }
         console.log(filter[0].route)
+
         filter[0].name=title;
         filter[0].content=html;
-        filter[0].route=pageName;
+       
 
         let confirmation = {confirm:true};
         res.render("edit",{confirmation});
     }
-    else if(filter.length===0){
-        res.redirect("/dashboard");
+   else if( filter.length==1 && errors.length>0){
+        console.log(`filter is: ${filter}`);
+        values = {
+            html:filter[0].content,
+            title:filter[0].name,
+            pageName:filter[0].route
+        };
+        res.render("edit",{errors,values});
     }
     else{
+        
+        console.log("Running else for edit.post");
         res.render("edit",{errors,values});
     }
 });
@@ -267,7 +334,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
         }
     }
     //eventually a call to the db
-    let filter = pages.filter(x=>x.route === pageName);
+    /*let filter = pages.filter(x=>x.route === pageName);
     console.log(`Filter length: ${filter.length}`);
     if(errors.length===0){
         //This means a page with that name does not yet exist
@@ -297,7 +364,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
         let confirmation = {confirm:true};
         //res.render("add",{values});
         res.render("add",{confirmation});
-    }
+    }*/
 });
 myApp.post('/login',(req,res)=>{
     if(req.session.admin==undefined){
@@ -307,20 +374,21 @@ myApp.post('/login',(req,res)=>{
     let pass = req.body.password;
 
     let errors = [];
-    if(user === username && pass === password){
-        req.session.admin=true;
-        console.log(`Logged in as admin:${req.session.admin}`);
-        res.redirect('/dashboard');
-    }
-    else{
-        if(user!==username){
-            errors.push("Invalid username");
+    Credentials.findOne({username:user,password:pass}).then((admin)=>{
+        console.log(admin);
+        if(admin){
+            req.session.admin=true;
+            res.redirect('/dashboard');
         }
-        if(pass!==password){
-            errors.push("Invalid password");
+        else{
+            errors.push("Invalid username or password");
+            res.render('login',{errors});
         }
-        res.render('login',{errors});
-    }
+    }).catch((err)=>{
+        console.log(`Something went wrong: ${err}`);
+    });
+    
+    
 });
 myApp.listen(port);
 console.log("Server running");
