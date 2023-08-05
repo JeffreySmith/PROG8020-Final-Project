@@ -44,7 +44,7 @@ function checkImage(image,errors){
         let mimeType = image.mimetype;
         //Check that the file is an image
         if(/^image/.test(mimeType)){
-            console.log(`${imageName} is an image`);
+            //console.log(`${imageName} is an image`);
             const imageFolderPath = './public/images/' + imageName;
             image.mv(imageFolderPath,(err) => {
                 if(err){
@@ -106,7 +106,7 @@ myApp.get("/dashboard",(req,res)=>{
     //this is a SELECT * kind of call
     if(req.session.admin!=undefined && req.session.admin){
         Page.find({}).then((page)=>{
-            console.log(page);
+            
             let pages = page;
             res.render("dashboard",{pages});
         }).catch((error)=>{
@@ -121,11 +121,36 @@ myApp.get("/dashboard",(req,res)=>{
 });
 myApp.get("/edit/:name/",(req,res)=>{
     let name = req.params.name;
+    name = name.toLowerCase();
     if(req.session.admin==undefined){
         req.session.admin = false;
     }
     console.log(`/edit/${name}`);
 
+
+    if(req.session.admin){
+        Page.findOne({route:name}).then((page)=>{
+            if(page){
+                console.log(`Found page ${page.route}`);
+                let values = {
+                    html:page.html,
+                    title:page.title,
+                    pageName:page.route
+                };
+                console.log(values);
+                res.render('edit',{values});
+            }
+            else{
+                res.redirect('/dashboard');
+            }
+            
+            
+        });
+    }
+    else{
+        res.redirect('/login');
+    }
+    /*
     let filter = pages.filter(x=>x.route.toLowerCase() == name.toLowerCase());
     console.log(`There are ${filter.length} elements in the filter for ${name}`);
     if(filter.length===1 && req.session.admin!=undefined && req.session.admin){
@@ -139,14 +164,34 @@ myApp.get("/edit/:name/",(req,res)=>{
     }
     else{
         res.redirect('/dashboard');
-    }
+    }*/
 });
 myApp.get("/delete/:name/",(req,res)=>{
     if(req.session.admin==undefined){
         req.session.admin = false;
     }
+    let errors= [];
+    if(!req.session.admin){
+        errors.push("You don't have permisson to do this. Please login");
+    }
     let name = req.params.name;
-    let filter = pages.filter(x=>x.route.toLowerCase() == name.toLowerCase());
+    name = name.toLowerCase();
+    Page.findOneAndDelete({route:name}).then((page)=>{
+        if(page && errors.length===0){
+            console.log(`Page ${name} deleted`);
+            let confirmation = {
+                confirm:true,
+                name:name
+            }
+            res.render('delete',{confirmation});
+        }
+        else{
+            console.log("Page not found for editing");
+            res.redirect('/dashboard');
+        }
+        
+    });
+    /*let filter = pages.filter(x=>x.route.toLowerCase() == name.toLowerCase());
     if (filter.length===1 && req.session.admin){
         let index = pages.findIndex(x=>  x.route.toLowerCase() === name.toLowerCase());
         console.log(`index is: ${index}`);
@@ -163,7 +208,7 @@ myApp.get("/delete/:name/",(req,res)=>{
     }
     else{
         res.redirect('/dashboard');
-    }
+    }*/
     
 });
 
@@ -176,13 +221,13 @@ myApp.get("/:name/",(req,res)=>{
     //async problems led me to have to structure things this way. That was an incredibly frustrating bug
     //to figure out. My functions would *sometimes* succeed, then other times fail.
     Page.find({}).then((navPage)=>{
-        console.log(`return from mongodb: ${navPage}`);
+        //console.log(`return from mongodb: ${navPage}`);
         for(let p of navPage){
-            console.log(`Running for: ${p}`);
+            //console.log(`Running for: ${p}`);
             pages.push(p.route);
             
         }
-        console.log(`eia,srntietnihar${navPage[0].route}`);
+        //console.log(`eia,srntietnihar${navPage[0].route}`);
         
         Page.findOne({route:name.toLowerCase()}).then((page)=>{
         
@@ -240,7 +285,11 @@ myApp.post("/edit",(req,res)=>{
     let image = "";
     let imageName = "";
     let pageName = req.body.pagename;
+    pageName = pageName.toLowerCase();
     const errors = [];
+    if(!req.session.admin){
+        errors.push("You don't have permission to do this. Please login.");
+    }
     if(req.files){
         image = req.files.Image;
         
@@ -257,12 +306,34 @@ myApp.post("/edit",(req,res)=>{
         errors.push("You must supply a page name");
     }
     
+
     
-    console.log(`PageName:${pageName}`);
-    let filter = pages.filter(x=>x.route === pageName);
+    //console.log(`PageName:${pageName}`);
+    //let filter = pages.filter(x=>x.route === pageName);
     
     let values={};
-    if(errors.length===0 && filter.length===1){
+    if(errors.length===0){
+        
+        Page.findOne({route:pageName}).then((p)=>{
+            if(p && imageName == ""){
+                imageName = p.imageName;
+            }
+            if(p){
+
+                Page.findByIdAndUpdate({_id:p._id}).then((page)=>{
+                    page.html = html,
+                    page.title = title,
+                    page.imageName = imageName;
+                    page.save();
+                }).catch((error)=>{
+                    console.log(`Error:${error}`);
+                });
+            }
+        });  
+    }
+    
+
+    /*if(errors.length===0 && filter.length===1){
         
         if(imageName!=""){
             filter[0].image=imageName;
@@ -292,7 +363,7 @@ myApp.post("/edit",(req,res)=>{
         
         console.log("Running else for edit.post");
         res.render("edit",{errors,values});
-    }
+    }*/
 });
 myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
     const expressErrors = validationResult(req);
@@ -306,6 +377,9 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
             console.log(`Express errors: ${err.msg}`);
         }
         errors.push("You must supply a page name");
+    }
+    if(!req.session.admin){
+        errors.push("You don't have permission to do this. Please login");
     }
     //Eventually don't let it put this value in on error. It should not insert an invalid page route
     if(pageName.includes('/')){
@@ -337,10 +411,16 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
     Page.findOne({route:pageName.toLowerCase()}).then((page)=>{
         if(page){
             errors.push("A page with that name already exists");
+            let values = {
+                html:html,
+                title:title,
+                pageName:pageName
+            };
+            res.render("add",{errors,values});
         }
         else{
             if(errors.length>0){
-                values = {
+                let values = {
                     html:html,
                     title:title,
                     pageName:pageName
