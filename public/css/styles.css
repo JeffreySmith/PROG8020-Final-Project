@@ -39,7 +39,10 @@ header a{
     margin-left:auto;
     align-self:flex-start;
 }
-
+main{
+    margin-top:50px;
+    margin-bottom:100px;
+}
 nav{
     display:flex;
     justify-content:center;

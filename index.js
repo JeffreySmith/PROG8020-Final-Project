@@ -210,6 +210,7 @@ myApp.get("/:name/",(req,res)=>{
     }).catch((error)=>{
         console.log(`Error:${error}`);
     });
+
     
     //Every one of these 'filter' variables needs to eventually become a call to the db
     
@@ -324,7 +325,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
     
     console.log(pageName)
     //This prevents weird things happening with spaces in urls
-    pageName = pageName.replaceAll(' ','-');
+    pageName = pageName.replaceAll(' ','-').toLowerCase();
     
     //We don't want someone trying to create a page that is predefined (like 'edit','login',etc)
     //Those values will change as I add more features to the site
@@ -333,6 +334,38 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
             errors.push(`Page name '${page}' is a reserved name`);
         }
     }
+    Page.findOne({route:pageName.toLowerCase()}).then((page)=>{
+        if(page){
+            errors.push("A page with that name already exists");
+        }
+        else{
+            if(errors.length>0){
+                values = {
+                    html:html,
+                    title:title,
+                    pageName:pageName
+                };
+                res.render("add",{errors,values});
+            }
+            else{
+                let newPage = {
+                    html:html,
+                    title:title,
+                    route:pageName,
+                    imageName:imageName
+                };
+                let addedPage = new Page(newPage);
+                addedPage.save().then(()=>{
+                    console.log("Page added to db");
+                });
+                let confirmation = {confirm:true};
+                res.render("add",{confirmation});
+            }
+        }
+    }).catch((error)=>{
+        console.log(`Error:${error}`);
+    });
+
     //eventually a call to the db
     /*let filter = pages.filter(x=>x.route === pageName);
     console.log(`Filter length: ${filter.length}`);
