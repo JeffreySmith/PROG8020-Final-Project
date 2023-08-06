@@ -35,7 +35,7 @@ header img{
 header div:nth-child(2){
     margin-left:50px;
 }
-header a{
+header div:nth-child(3){
     margin-left:auto;
     align-self:flex-start;
 }
@@ -55,11 +55,21 @@ nav{
 nav a{
     margin:10px 20px;
 }
+.admin a{
+    font-weight: 450;
+}
+.page-name{
+    font-weight:500;
+}
 header,footer{
     background-color: hsl(205,20%,98%);
 }
 h1{
     text-align: center;
+}
+form div label{
+    display:inline-block;
+    width:150px;
 }
 .centre-text{
     text-align:center;
@@ -111,8 +121,16 @@ input[type="submit"]:hover{
 main p{
     text-indent:4ch;
 }
+.container{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+}
 .container div{
     margin:20px;
+}
+.container main{
+    align-self:flex-start;
 }
 
 table{

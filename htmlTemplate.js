@@ -1,8 +1,8 @@
 "use strict";
 function createHTMLPage(title,articleTitle,innerHTMLContent,image,navbar,admin){
-    let logInOrOut = '<a href="/login"><p>Login</p></a>';
+    let logInOrOut = '<div><a href="/login"><p>Login</p></a></div>';
     if(admin){
-        logInOrOut = '<a href="/logout"><p>Logout</p></a>';
+        logInOrOut = '<div><a href="/dashboard">Dashboard</a> &nbsp;<a href="/logout"><p>Logout</p></a></div>';
     }
     
     return `
@@ -21,15 +21,16 @@ function createHTMLPage(title,articleTitle,innerHTMLContent,image,navbar,admin){
         <header>
             
             <div><a href="/" title="home"><img src='https://placekitten.com/100/100'></a></div>
-            <div><h2>My website</h2></div>
+            <div><h2>SimpleCMS</h2></div>
             ${logInOrOut}
         </header>
         <nav>
             ${navbar}
         </nav>
         <div class="container">
-            <img class="hero-image" src="/images/${image}" alt="Hero image here">
             <h1>${articleTitle}</h1>
+            <img class="hero-image" src="/images/${image}" alt="Hero image here">
+            
             <main>
                 ${innerHTMLContent}
             </main>
@@ -45,8 +46,9 @@ function createNav(pages){
     let navBar = "";
     console.log('Pages is '+pages+' before we try making the navbar') ;
     for(const page of pages){
+
         console.log('Route: '+page);
-        navBar+=`<a href="${page}">${page}</a>`;
+        navBar+=`<a href="${page}">${page.replaceAll('-',' ')}</a>`;
     }
     console.log('Navbar is: '+navBar);
     return navBar;

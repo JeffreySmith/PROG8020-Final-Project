@@ -71,6 +71,9 @@ myApp.get("/",(req,res)=>{
     res.redirect('/home');
 });
 myApp.get("/login",(req,res)=>{
+    if(req.session.loggingOut==undefined){
+        req.session.loggingOut = false;
+    }
     if(req.session.admin==undefined){
         req.session.admin = false;
     }
@@ -78,12 +81,24 @@ myApp.get("/login",(req,res)=>{
         res.redirect('dashboard');
     }
     else{
-        res.render('login');
+        if(req.session.loggingOut){
+            req.session.loggingOut = false;
+            let message = "You've succesfully logged out!";
+            res.render('login',{message});
+        }
+        else{
+            res.render('login');
+        }
+
     }
     
 });
 myApp.get("/logout",(req,res)=>{
+    if(req.session.admin){
+        req.session.loggingOut = true;
+    }
     req.session.admin = false;
+
     res.redirect('/login');
 });
 myApp.get("/add",(req,res)=>{
@@ -233,7 +248,7 @@ myApp.get("/:name/",(req,res)=>{
         
             if(page){
                 let nav = createNav(pages);
-                let html = createHTMLPage(page.title,page.title,page.html,page.imageName,nav);
+                let html = createHTMLPage(page.title,page.title,page.html,page.imageName,nav,req.session.admin);
                 res.send(html);
             }
             else{
@@ -325,11 +340,22 @@ myApp.post("/edit",(req,res)=>{
                     page.title = title,
                     page.imageName = imageName;
                     page.save();
+                    let confirmation = {confirm:true};
+                    res.render('edit',{confirmation});
                 }).catch((error)=>{
                     console.log(`Error:${error}`);
                 });
             }
+            
         });  
+    }
+    else{
+        let values = {
+            html:html,
+            title:title,
+            pageName:pageName
+        };
+        res.render('edit',{values,errors});
     }
     
 
@@ -399,16 +425,17 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
     
     console.log(pageName)
     //This prevents weird things happening with spaces in urls
+    pageName = pageName.trim();
     pageName = pageName.replaceAll(' ','-').toLowerCase();
-    
+    pageName = pageName.toLowerCase();
     //We don't want someone trying to create a page that is predefined (like 'edit','login',etc)
     //Those values will change as I add more features to the site
     for(const page of reservedNames){
-        if(pageName.toLowerCase() == page){
+        if(pageName == page){
             errors.push(`Page name '${page}' is a reserved name`);
         }
     }
-    Page.findOne({route:pageName.toLowerCase()}).then((page)=>{
+    Page.findOne({route:pageName}).then((page)=>{
         if(page){
             errors.push("A page with that name already exists");
             let values = {
