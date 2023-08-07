@@ -174,6 +174,8 @@ myApp.get("/delete/:name/",(req,res)=>{
     let errors= [];
     if(!req.session.admin){
         errors.push("You don't have permisson to do this. Please login");
+        res.redirect('/login');
+        return;
     }
     let name = req.params.name;
     name = name.toLowerCase();
@@ -186,10 +188,11 @@ myApp.get("/delete/:name/",(req,res)=>{
             }
             res.render('delete',{confirmation});
         }
+        
         else{
-            let notFound = name;
-            res.render('delete',{notFound});
-            console.log("Page not found for editing");
+            //Go back to the login page
+            res.redirect('/login');
+            console.log(`Page ${name} not found`);
         }
         
     });

@@ -16,6 +16,7 @@
     <% if(typeof(notFound)!='undefined') { %> 
         <h3 class="centre-text">Page '<%= notFound %>' does not exist</h3>    
     <%}%>
+    <%- include('layouts/errors'); -%>
     <%- include('layouts/footer'); -%>
 </body>
 </html>
