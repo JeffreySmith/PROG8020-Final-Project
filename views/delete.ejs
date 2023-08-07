@@ -13,6 +13,9 @@
     <% if(typeof(confirmation)!='undefined') { %>
         <h3 class="centre-text">Page '<%= confirmation.name %>' was successfully deleted</h3>
     <% } %>
+    <% if(typeof(notFound)!='undefined') { %> 
+        <h3 class="centre-text">Page '<%= notFound %>' does not exist</h3>    
+    <%}%>
     <%- include('layouts/footer'); -%>
 </body>
 </html>

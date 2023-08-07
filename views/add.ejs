@@ -13,6 +13,8 @@
     <%- include('layouts/adminnav'); -%>
     
     <h1>Add Page</h1>
+    <%- include('layouts/errors'); -%>
+
     <% if(typeof(confirmation)=='undefined'){ %>
         <div class="page-container">
             <div class="container">
@@ -25,8 +27,7 @@
     <% } %>
     <%- include('layouts/confirm'); -%>
 
-    <%- include('layouts/errors'); -%>
-
+    
     <%- include('layouts/footer'); -%>
     <%- include('layouts/tinymce'); -%>
 </body>

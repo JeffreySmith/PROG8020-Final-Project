@@ -30,10 +30,12 @@ header{
     background-color: hsl(205,20%,98%);
 }
 header img{
+    width:100px;
     border-radius: 100%;
+    border: 1px solid #0A4B84;
 }
 header div:nth-child(2){
-    margin-left:50px;
+    margin-left:25px;
 }
 header div:nth-child(3){
     margin-left:auto;
@@ -43,11 +45,13 @@ main{
     margin-top:50px;
     margin-bottom:100px;
     margin:50px 30px 100px 30px;
+    line-height: 1.3;
 }
+
 nav{
     display:flex;
     justify-content:center;
-    
+    flex-wrap:wrap;
     align-items: baseline;
     border:2px solid black;
     margin-bottom:20px;
@@ -58,14 +62,22 @@ nav a{
 .admin a{
     font-weight: 450;
 }
+th,td{
+    text-align:center;
+}
 .page-name{
     font-weight:500;
+    
 }
 header,footer{
     background-color: hsl(205,20%,98%);
 }
 h1{
     text-align: center;
+    font-size: 38px;
+}
+textarea{
+    margin-left:none;
 }
 form div label{
     display:inline-block;
@@ -76,7 +88,7 @@ form div label{
 }
 .hero-image{
     max-width:100%;
-    height:auto;
+    max-height:500px;
     margin:auto;
 }
 .errors{
@@ -118,9 +130,9 @@ input[type="submit"]:hover{
     cursor: pointer;
     
 }
-main p{
+/*div > main p{
     text-indent:4ch;
-}
+}*/
 .container{
     display:flex;
     flex-direction: column;
@@ -130,9 +142,14 @@ main p{
     margin:20px;
 }
 .container main{
-    align-self:flex-start;
+    /*align-self:flex-start;*/
+    width:100%;
+    margin-left:15px;
+    margin-right:15px;
 }
-
+.container main p{
+    margin:10px 20px;
+}
 table{
     margin:auto;
     border-collapse: collapse;

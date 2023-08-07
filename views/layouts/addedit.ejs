@@ -1,5 +1,5 @@
 <div>
-    <label for="pagename">URL/Page Slug:</label>
+    <label for="pagename">Page Name/Slug:</label>
     <input type="text" id="pagename" name="pagename" <% if(typeof(values)!='undefined'){%>value="<%= values.pageName %>" <%}%> >
 </div>
 <div>
@@ -12,7 +12,7 @@
     <input type="file" accept="image/*" id="Image" name="Image">
 </div>
 
-<div style="margin-bottom:20px;">
+<div style="margin-left:0;">
     <textarea id="htmlcontent"  name="htmlcontent" > <% if(typeof(values)!='undefined'){%><%= values.html %> <%}%> </textarea>
     <input type="submit" value="Save">
 </div>

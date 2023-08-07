@@ -13,7 +13,7 @@
     <%- include('layouts/adminnav'); -%>
     <h1>Edit Page</h1>
     <% if(typeof(confirmation)=="undefined"){%>
-    
+        <%- include('layouts/errors'); -%>
     <div class="page-container">
         <div class="container">
             <form action="/edit" method="post" name="edit-form" enctype="multipart/form-data">
@@ -33,7 +33,7 @@
                     <input type="file" accept="image/*" id="Image" name="Image">
                 </div>
                 
-                <div style="margin-bottom:20px;">
+                <div style="margin-left:0">
                     <textarea id="htmlcontent"  name="htmlcontent" > <% if(typeof(values)!='undefined'){%> <%= values.html %> <%}%> </textarea>
                     <input type="submit" value="Save">
                 </div>
@@ -44,8 +44,6 @@
     <% } %>
 
     <%- include('layouts/confirm'); -%>
-
-    <%- include('layouts/errors'); -%>
     <%- include('layouts/footer'); -%>
     <%- include('layouts/tinymce'); -%>
 </body>
