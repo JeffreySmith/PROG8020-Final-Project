@@ -29,6 +29,30 @@ const Credentials = mongoose.model("credentials",{
     username:String,
     password:String
 });
+
+//This is here because I realized that if you ran it, you would be unable to login if the credentials document didn't exist
+//This sets a default name and password. You can actually change the password in the database, and it will work with that
+//new password
+
+
+
+Credentials.findOne({username:'admin'}).then((admin)=>{
+    if(!admin){
+        let info = {
+            username:'admin',
+            password:'admin'
+        };
+        let Admin = new Credentials(info);
+        Admin.save().then(()=>{
+            console.log("Credentials set in db");
+        });
+    }
+    else{
+        console.log("Admin account already exists");
+    }
+
+});
+
 myApp.set("view engine", "ejs");
 myApp.use(express.urlencoded({ extended: true }));
 myApp.set("views",path.join(__dirname, "views"));
@@ -37,6 +61,7 @@ myApp.use(upload());
 
 const reservedNames = ["edit","login","logout","dashboard","add"];
 
+//This modifies errors, which is an array. Since it's pass by reference, this works
 function checkImage(image,errors){
     let imageName="";
     if(image){
@@ -64,10 +89,10 @@ function checkImage(image,errors){
 }
 
 myApp.get("/",(req,res)=>{
+    //Make sure that req.session exists. We'll do this a few more times
     if(req.session.admin==undefined){
         req.session.admin = false;
     }
-    //eventually, check if 'home' exists before redirecting. Send to login
     res.redirect('/home');
 });
 myApp.get("/login",(req,res)=>{
@@ -81,6 +106,7 @@ myApp.get("/login",(req,res)=>{
         res.redirect('dashboard');
     }
     else{
+        //If we're actually logging out, set a message saying we've been logged out successfully
         if(req.session.loggingOut){
             req.session.loggingOut = false;
             let message = "You've succesfully logged out!";
@@ -117,9 +143,9 @@ myApp.get("/dashboard",(req,res)=>{
     if(req.session.admin==undefined){
         req.session.admin = false;
     }
-    //need a call to the db here to get page info.
-    //this is a SELECT * kind of call
+
     if(req.session.admin!=undefined && req.session.admin){
+        //go through all of the pages so we can pass it to 'dashboard'
         Page.find({}).then((page)=>{
             
             let pages = page;
@@ -136,6 +162,7 @@ myApp.get("/dashboard",(req,res)=>{
 });
 myApp.get("/edit/:name/",(req,res)=>{
     let name = req.params.name;
+    //toLowerCase() is here to make sure things are all in lowercase. I'm going to do this a lot
     name = name.toLowerCase();
     if(req.session.admin==undefined){
         req.session.admin = false;
@@ -207,22 +234,27 @@ myApp.get("/:name/",(req,res)=>{
     //async problems led me to have to structure things this way. That was an incredibly frustrating bug
     //to figure out. My functions would *sometimes* succeed, then other times fail.
     Page.find({}).then((navPage)=>{
+        //Get all pages
         for(let p of navPage){
             pages.push(p.route);
         }
-        
+        //look for a page that exists
         Page.findOne({route:name.toLowerCase()}).then((page)=>{
         
             if(page){
+                //generate the page
                 let nav = createNav(pages);
                 let html = createHTMLPage(page.title,page.title,page.html,page.imageName,nav,req.session.admin);
                 res.send(html);
             }
             else{
                 Page.findOne({route:'home'}).then((homePage)=>{
+                    //if there's a 'home' page
                     if(homePage){
                         res.redirect('/home');
                     }
+                    //if there isn't 
+                    //This will go to 'login' if the user isn't logged in as admin
                     else{
                         res.redirect('/dashboard');
                     }
@@ -239,7 +271,7 @@ myApp.get("/:name/",(req,res)=>{
     });
 });
 
-//check to make sure that the hidden 'route' actually exists, just in case someone tried to delete it
+
 myApp.post("/edit",(req,res)=>{
     let html=req.body.htmlcontent;
     let title = req.body.articleTitle;
@@ -249,6 +281,7 @@ myApp.post("/edit",(req,res)=>{
     pageName = pageName.toLowerCase();
     const errors = [];
     if(!req.session.admin){
+        //This mostly happens if you've already logged out in another page, or have restarted the server
         errors.push("You don't have permission to do this. Please login.");
     }
     if(req.files){
@@ -264,13 +297,14 @@ myApp.post("/edit",(req,res)=>{
                 imageName = p.imageName;
             }
             if(p){
-                //I couldn't figure out how to find something correctly using a different column, so I ended
+                //I couldn't figure out how to find something correctly and update it using a different column than _id, so I ended
                 //up having to nest calls to the db
                 Page.findByIdAndUpdate({_id:p._id}).then((page)=>{
                     page.html = html,
                     page.title = title,
                     page.imageName = imageName;
                     page.save();
+                    //This tells 'edit' that the page has been saved
                     let confirmation = {confirm:true};
                     res.render('edit',{confirmation});
                 }).catch((error)=>{
@@ -281,6 +315,7 @@ myApp.post("/edit",(req,res)=>{
         });  
     }
     else{
+        //Something wasn't valid, fill the values back in
         let values = {
             html:html,
             title:title,
@@ -317,6 +352,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
         
     }
     else{
+        //In here, an image is required, unlike in 'edit'
         errors.push("Please upload an image");
     }
     
@@ -334,6 +370,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
     }
     Page.findOne({route:pageName}).then((page)=>{
         if(page){
+            //if it exists, don't just overwrite it. If you want to change it, you have to go to edit.
             errors.push("A page with that name already exists");
             let values = {
                 html:html,
@@ -343,6 +380,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
             res.render("add",{errors,values});
         }
         else{
+            //reload the page and render the errors
             if(errors.length>0){
                 let values = {
                     html:html,
@@ -352,6 +390,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
                 res.render("add",{errors,values});
             }
             else{
+                //Hooray, no errors, and the page doesn't exist already!
                 let newPage = {
                     html:html,
                     title:title,
@@ -362,6 +401,7 @@ myApp.post("/add/",[check("pagename").notEmpty()],(req,res)=>{
                 addedPage.save().then(()=>{
                     console.log("Page added to db");
                 });
+                //Hey, page has been saved!
                 let confirmation = {confirm:true};
                 res.render("add",{confirmation});
             }
@@ -380,6 +420,7 @@ myApp.post('/login',(req,res)=>{
     let errors = [];
     Credentials.findOne({username:user,password:pass}).then((admin)=>{
         console.log(admin);
+        //Username and password are correct!
         if(admin){
             req.session.admin=true;
             res.redirect('/dashboard');
